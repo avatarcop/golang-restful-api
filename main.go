@@ -1,15 +1,17 @@
 package main
 
 import (
+	"golang-restful-api/app"
+	"golang-restful-api/controller"
+	"golang-restful-api/helper"
+	"golang-restful-api/middleware"
+	"golang-restful-api/repository"
+	"golang-restful-api/service"
+	"log"
+	"net/http"
+
 	"github.com/go-playground/validator/v10"
 	_ "github.com/go-sql-driver/mysql"
-	"net/http"
-	"belajar-golang-restful-api/app"
-	"belajar-golang-restful-api/controller"
-	"belajar-golang-restful-api/helper"
-	"belajar-golang-restful-api/middleware"
-	"belajar-golang-restful-api/repository"
-	"belajar-golang-restful-api/service"
 )
 
 func main() {
@@ -25,7 +27,7 @@ func main() {
 		Addr:    "localhost:3000",
 		Handler: middleware.NewAuthMiddleware(router),
 	}
-
+	log.Print("Success running server at localhost:3000")
 	err := server.ListenAndServe()
 	helper.PanicIfError(err)
 }

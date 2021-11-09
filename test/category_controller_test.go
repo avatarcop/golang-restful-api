@@ -5,26 +5,28 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/go-playground/validator/v10"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/stretchr/testify/assert"
+	"golang-restful-api/app"
+	"golang-restful-api/controller"
+	"golang-restful-api/helper"
+	"golang-restful-api/middleware"
+	"golang-restful-api/model/domain"
+	"golang-restful-api/repository"
+	"golang-restful-api/service"
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"belajar-golang-restful-api/app"
-	"belajar-golang-restful-api/controller"
-	"belajar-golang-restful-api/helper"
-	"belajar-golang-restful-api/middleware"
-	"belajar-golang-restful-api/model/domain"
-	"belajar-golang-restful-api/repository"
-	"belajar-golang-restful-api/service"
 	"strconv"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/go-playground/validator/v10"
+	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/lib/pq"
+	"github.com/stretchr/testify/assert"
 )
 
-func setupTestDB() *sql.DB {
+func testSetupTestDB() *sql.DB {
 	db, err := sql.Open("mysql", "root@tcp(localhost:3306)/belajar_golang_restful_api_test")
 	helper.PanicIfError(err)
 
@@ -35,6 +37,35 @@ func setupTestDB() *sql.DB {
 
 	return db
 }
+
+// func testSetupTestDB() *sql.DB {
+// 	// host := os.Getenv("POSTGRES_HOST")
+// 	// user := os.Getenv("POSTGRES_USER")
+// 	// password := os.Getenv("POSTGRES_PASSWORD")
+// 	// databaseName := os.Getenv("POSTGRES_DB_NAME")
+
+// 	// desc := fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", host, user, password, databaseName)
+// 	desc := fmt.Sprintf("host=localhost port=5432 user=postgres password=123 dbname=lokal_belajar sslmode=disable")
+
+// 	db, err := createConnectionTest(desc)
+
+// 	helper.PanicIfError(err)
+
+// 	return db
+// }
+
+// func createConnectionTest(desc string) (*sql.DB, error) {
+// 	db, err := sql.Open("postgres", desc)
+
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	db.SetMaxIdleConns(10)
+// 	db.SetMaxOpenConns(10)
+
+// 	return db, nil
+// }
 
 func setupRouter(db *sql.DB) http.Handler {
 	validate := validator.New()
@@ -51,7 +82,7 @@ func truncateCategory(db *sql.DB) {
 }
 
 func TestCreateCategorySuccess(t *testing.T) {
-	db := setupTestDB()
+	db := testSetupTestDB()
 	truncateCategory(db)
 	router := setupRouter(db)
 
@@ -65,6 +96,7 @@ func TestCreateCategorySuccess(t *testing.T) {
 	router.ServeHTTP(recorder, request)
 
 	response := recorder.Result()
+
 	assert.Equal(t, 200, response.StatusCode)
 
 	body, _ := io.ReadAll(response.Body)
@@ -77,7 +109,7 @@ func TestCreateCategorySuccess(t *testing.T) {
 }
 
 func TestCreateCategoryFailed(t *testing.T) {
-	db := setupTestDB()
+	db := testSetupTestDB()
 	truncateCategory(db)
 	router := setupRouter(db)
 
@@ -102,7 +134,7 @@ func TestCreateCategoryFailed(t *testing.T) {
 }
 
 func TestUpdateCategorySuccess(t *testing.T) {
-	db := setupTestDB()
+	db := testSetupTestDB()
 	truncateCategory(db)
 
 	tx, _ := db.Begin()
@@ -137,7 +169,7 @@ func TestUpdateCategorySuccess(t *testing.T) {
 }
 
 func TestUpdateCategoryFailed(t *testing.T) {
-	db := setupTestDB()
+	db := testSetupTestDB()
 	truncateCategory(db)
 
 	tx, _ := db.Begin()
@@ -170,7 +202,7 @@ func TestUpdateCategoryFailed(t *testing.T) {
 }
 
 func TestGetCategorySuccess(t *testing.T) {
-	db := setupTestDB()
+	db := testSetupTestDB()
 	truncateCategory(db)
 
 	tx, _ := db.Begin()
@@ -203,7 +235,7 @@ func TestGetCategorySuccess(t *testing.T) {
 }
 
 func TestGetCategoryFailed(t *testing.T) {
-	db := setupTestDB()
+	db := testSetupTestDB()
 	truncateCategory(db)
 	router := setupRouter(db)
 
@@ -226,7 +258,7 @@ func TestGetCategoryFailed(t *testing.T) {
 }
 
 func TestDeleteCategorySuccess(t *testing.T) {
-	db := setupTestDB()
+	db := testSetupTestDB()
 	truncateCategory(db)
 
 	tx, _ := db.Begin()
@@ -258,7 +290,7 @@ func TestDeleteCategorySuccess(t *testing.T) {
 }
 
 func TestDeleteCategoryFailed(t *testing.T) {
-	db := setupTestDB()
+	db := testSetupTestDB()
 	truncateCategory(db)
 	router := setupRouter(db)
 
@@ -282,7 +314,7 @@ func TestDeleteCategoryFailed(t *testing.T) {
 }
 
 func TestListCategoriesSuccess(t *testing.T) {
-	db := setupTestDB()
+	db := testSetupTestDB()
 	truncateCategory(db)
 
 	tx, _ := db.Begin()
@@ -329,7 +361,7 @@ func TestListCategoriesSuccess(t *testing.T) {
 }
 
 func TestUnauthorized(t *testing.T) {
-	db := setupTestDB()
+	db := testSetupTestDB()
 	truncateCategory(db)
 	router := setupRouter(db)
 
@@ -349,4 +381,26 @@ func TestUnauthorized(t *testing.T) {
 
 	assert.Equal(t, 401, int(responseBody["code"].(float64)))
 	assert.Equal(t, "UNAUTHORIZED", responseBody["status"])
+}
+
+func TestAja(t *testing.T) {
+	db := testSetupTestDB()
+	query := "select id, name from category"
+
+	var categories []domain.Category
+
+	rows, err := db.Query(query)
+
+	helper.PanicIfError(err)
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var category domain.Category
+		err = rows.Scan(&category.Id, &category.Name)
+		helper.PanicIfError(err)
+		categories = append(categories, category)
+	}
+
+	fmt.Printf("%+v\n", categories)
 }

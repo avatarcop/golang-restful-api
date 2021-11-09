@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"belajar-golang-restful-api/model/domain"
+	"golang-restful-api/model/domain"
 )
 
 type CategoryRepository interface {

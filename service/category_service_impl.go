@@ -3,12 +3,14 @@ package service
 import (
 	"context"
 	"database/sql"
+	"golang-restful-api/exception"
+	"golang-restful-api/helper"
+	"golang-restful-api/model/domain"
+	"golang-restful-api/model/web"
+	"golang-restful-api/repository"
+	"log"
+
 	"github.com/go-playground/validator/v10"
-	"belajar-golang-restful-api/exception"
-	"belajar-golang-restful-api/helper"
-	"belajar-golang-restful-api/model/domain"
-	"belajar-golang-restful-api/model/web"
-	"belajar-golang-restful-api/repository"
 )
 
 type CategoryServiceImpl struct {
@@ -26,19 +28,26 @@ func NewCategoryService(categoryRepository repository.CategoryRepository, DB *sq
 }
 
 func (service *CategoryServiceImpl) Create(ctx context.Context, request web.CategoryCreateRequest) web.CategoryResponse {
+	log.Output(0, "Service create")
 	err := service.Validate.Struct(request)
-	helper.PanicIfError(err)
+	if err != nil {
+		log.Fatal("Error validate struct Service Create:", err)
+		panic(err)
+	}
 
 	tx, err := service.DB.Begin()
-	helper.PanicIfError(err)
+	if err != nil {
+		log.Fatal("Error begin DB Service Create:", err)
+		panic(err)
+	}
 	defer helper.CommitOrRollback(tx)
-
+	log.Output(0, "Service create 1")
 	category := domain.Category{
 		Name: request.Name,
 	}
-
+	log.Output(0, "Service create 2")
 	category = service.CategoryRepository.Save(ctx, tx, category)
-
+	log.Output(0, "Service create 3")
 	return helper.ToCategoryResponse(category)
 }
 

@@ -1,12 +1,14 @@
 package controller
 
 import (
-	"github.com/julienschmidt/httprouter"
+	"golang-restful-api/helper"
+	"golang-restful-api/model/web"
+	"golang-restful-api/service"
+	"log"
 	"net/http"
-	"belajar-golang-restful-api/helper"
-	"belajar-golang-restful-api/model/web"
-	"belajar-golang-restful-api/service"
 	"strconv"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 type CategoryControllerImpl struct {
@@ -22,14 +24,15 @@ func NewCategoryController(categoryService service.CategoryService) CategoryCont
 func (controller *CategoryControllerImpl) Create(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 	categoryCreateRequest := web.CategoryCreateRequest{}
 	helper.ReadFromRequestBody(request, &categoryCreateRequest)
-
+	log.Output(0, "Controller create")
 	categoryResponse := controller.CategoryService.Create(request.Context(), categoryCreateRequest)
+	log.Output(0, "Controller resp")
 	webResponse := web.WebResponse{
 		Code:   200,
 		Status: "OK",
 		Data:   categoryResponse,
 	}
-
+	log.Output(0, "Controller webResp")
 	helper.WriteToResponseBody(writer, webResponse)
 }
 

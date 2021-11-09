@@ -1,9 +1,10 @@
 package app
 
 import (
+	"golang-restful-api/controller"
+	"golang-restful-api/exception"
+
 	"github.com/julienschmidt/httprouter"
-	"belajar-golang-restful-api/controller"
-	"belajar-golang-restful-api/exception"
 )
 
 func NewRouter(categoryController controller.CategoryController) *httprouter.Router {
@@ -14,6 +15,8 @@ func NewRouter(categoryController controller.CategoryController) *httprouter.Rou
 	router.POST("/api/categories", categoryController.Create)
 	router.PUT("/api/categories/:categoryId", categoryController.Update)
 	router.DELETE("/api/categories/:categoryId", categoryController.Delete)
+
+	// router.GET("/v1/buyer/transaction/cart", cartController.FindAll)
 
 	router.PanicHandler = exception.ErrorHandler
 

@@ -1,10 +1,12 @@
 package exception
 
 import (
-	"github.com/go-playground/validator/v10"
+	"golang-restful-api/helper"
+	"golang-restful-api/model/web"
+	"log"
 	"net/http"
-	"belajar-golang-restful-api/helper"
-	"belajar-golang-restful-api/model/web"
+
+	"github.com/go-playground/validator/v10"
 )
 
 func ErrorHandler(writer http.ResponseWriter, request *http.Request, err interface{}) {
@@ -23,6 +25,7 @@ func ErrorHandler(writer http.ResponseWriter, request *http.Request, err interfa
 func validationErrors(writer http.ResponseWriter, request *http.Request, err interface{}) bool {
 	exception, ok := err.(validator.ValidationErrors)
 	if ok {
+		log.Output(0, "No Error found at validationErrors")
 		writer.Header().Set("Content-Type", "application/json")
 		writer.WriteHeader(http.StatusBadRequest)
 
@@ -34,7 +37,8 @@ func validationErrors(writer http.ResponseWriter, request *http.Request, err int
 
 		helper.WriteToResponseBody(writer, webResponse)
 		return true
-	}else{
+	} else {
+		log.Fatal("validationErrors ", err)
 		return false
 	}
 }

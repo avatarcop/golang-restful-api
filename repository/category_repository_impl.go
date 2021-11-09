@@ -4,8 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"belajar-golang-restful-api/helper"
-	"belajar-golang-restful-api/model/domain"
+	"golang-restful-api/helper"
+	"golang-restful-api/model/domain"
+
+	"github.com/lib/pq"
 )
 
 type CategoryRepositoryImpl struct {
@@ -15,34 +17,39 @@ func NewCategoryRepository() CategoryRepository {
 	return &CategoryRepositoryImpl{}
 }
 
-func (repository *CategoryRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, category domain.Category) domain.Category {
-	SQL := "insert into category(name) values (?)"
-	result, err := tx.ExecContext(ctx, SQL, category.Name)
-	helper.PanicIfError(err)
+func (repository *CategoryRepositoryImpl) Save(ctx context.Context, tx *sql.Tx,
+	category domain.Category) domain.Category {
+	var id int
+	SQL := "insert into category(name) values ($1) RETURNING id"
 
-	id, err := result.LastInsertId()
-	helper.PanicIfError(err)
+	result := tx.QueryRowContext(ctx, SQL, pq.QuoteIdentifier(category.Name))
+	if err := result.Scan(&id); err != nil { // scan will release the connection
+		panic(err)
+	}
 
-	category.Id = int(id)
+	category.Id = id
 	return category
 }
 
 func (repository *CategoryRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, category domain.Category) domain.Category {
-	SQL := "update category set name = ? where id = ?"
-	_, err := tx.ExecContext(ctx, SQL, category.Name, category.Id)
-	helper.PanicIfError(err)
+	var id int
+	SQL := "update category set name = $1 where id = $2 RETURNING id"
+	result := tx.QueryRowContext(ctx, SQL, pq.QuoteIdentifier(category.Name), category.Id)
+	if err := result.Scan(&id); err != nil { // scan will release the connection
+		panic(err)
+	}
 
 	return category
 }
 
 func (repository *CategoryRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, category domain.Category) {
-	SQL := "delete from category where id = ?"
-	_, err := tx.ExecContext(ctx, SQL, category.Id)
+	SQL := "delete from category where id = $1"
+	_, err := tx.QueryContext(ctx, SQL, category.Id)
 	helper.PanicIfError(err)
 }
 
 func (repository *CategoryRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, categoryId int) (domain.Category, error) {
-	SQL := "select id, name from category where id = ?"
+	SQL := "select id, name from category where id = ($1)"
 	rows, err := tx.QueryContext(ctx, SQL, categoryId)
 	helper.PanicIfError(err)
 	defer rows.Close()

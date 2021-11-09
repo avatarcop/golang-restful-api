@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"belajar-golang-restful-api/model/web"
+	"golang-restful-api/model/web"
 )
 
 type CategoryService interface {
