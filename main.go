@@ -4,7 +4,6 @@ import (
 	"golang-restful-api/app"
 	"golang-restful-api/controller"
 	"golang-restful-api/helper"
-	"golang-restful-api/middleware"
 	"golang-restful-api/repository"
 	"golang-restful-api/service"
 	"log"
@@ -18,14 +17,14 @@ func main() {
 
 	db := app.NewDB()
 	validate := validator.New()
-	categoryRepository := repository.NewCategoryRepository()
-	categoryService := service.NewCategoryService(categoryRepository, db, validate)
-	categoryController := controller.NewCategoryController(categoryService)
-	router := app.NewRouter(categoryController)
+	notificationRepository := repository.NewNotificationRepository()
+	notificationService := service.NewNotificationService(notificationRepository, db, validate)
+	notificationController := controller.NewNotificationController(notificationService)
+	router := app.NewRouter(notificationController)
 
 	server := http.Server{
 		Addr:    "localhost:3000",
-		Handler: middleware.NewAuthMiddleware(router),
+		Handler: router,
 	}
 	log.Print("Success running server at localhost:3000")
 	err := server.ListenAndServe()
