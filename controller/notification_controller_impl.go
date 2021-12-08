@@ -67,3 +67,74 @@ func (controller *NotificationControllerImpl) Save(writer http.ResponseWriter, r
 
 	helper.WriteToResponseBody(writer, webResponse)
 }
+
+func (controller *NotificationControllerImpl) Update(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	notificationUpdateRequest := web.NotificationUpdateRequest{}
+	helper.ReadFromRequestBody(request, &notificationUpdateRequest)
+
+	notificationResponse := controller.NotificationService.Update(request.Context(), notificationUpdateRequest)
+	webResponse := web.WebResponse{
+		Code:   200,
+		Status: "OK",
+		Data:   notificationResponse,
+	}
+
+	helper.WriteToResponseBody(writer, webResponse)
+}
+
+func (controller *NotificationControllerImpl) UpdateRead(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	notificationUpdateReadRequest := web.NotificationUpdateReadRequest{}
+	helper.ReadFromRequestBody(request, &notificationUpdateReadRequest)
+
+	notificationResponse := controller.NotificationService.UpdateRead(request.Context(), notificationUpdateReadRequest)
+	webResponse := web.WebResponse{
+		Code:   200,
+		Status: "OK",
+		Data:   notificationResponse,
+	}
+
+	helper.WriteToResponseBody(writer, webResponse)
+}
+
+func (controller *NotificationControllerImpl) DeleteSoft(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	notificationDeleteSoftRequest := web.NotificationDeleteSoftRequest{}
+	helper.ReadFromRequestBody(request, &notificationDeleteSoftRequest)
+
+	notificationResponse := controller.NotificationService.DeleteSoft(request.Context(), notificationDeleteSoftRequest)
+	webResponse := web.WebResponse{
+		Code:   200,
+		Status: "OK",
+		Data:   notificationResponse,
+	}
+
+	helper.WriteToResponseBody(writer, webResponse)
+}
+
+func (controller *NotificationControllerImpl) DeleteHard(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	notificationDeleteHardRequest := web.NotificationDeleteHardRequest{}
+	helper.ReadFromRequestBody(request, &notificationDeleteHardRequest)
+
+	controller.NotificationService.DeleteHard(request.Context(), notificationDeleteHardRequest)
+	webResponse := web.WebResponse{
+		Code:   200,
+		Status: "OK",
+		Data:   make([]interface{}, 0),
+	}
+
+	helper.WriteToResponseBody(writer, webResponse)
+}
+
+func (controller *NotificationControllerImpl) Send(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	notificationSendRequest := web.NotificationSendRequest{}
+	helper.ReadFromRequestBody(request, &notificationSendRequest)
+
+	notificationResponse := controller.NotificationService.Send(request.Context(), notificationSendRequest)
+
+	webResponse := web.WebResponse{
+		Code:   200,
+		Status: "OK",
+		Data:   notificationResponse,
+	}
+
+	helper.WriteToResponseBody(writer, webResponse)
+}

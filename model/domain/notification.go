@@ -8,12 +8,12 @@ type Notification struct {
 	Title          string
 	Type           string
 	Message        string
-	IsRead         string
+	IsRead         bool
 	IconImageUrl   string
 	ImageUrl       string
 	SentStatus     string
 	RequestRaw     string
-	ResponsesRaw   string
+	ResponseRaw    string
 	DateIn         time.Time
 	UserIn         string
 	DateUp         time.Time
@@ -21,11 +21,21 @@ type Notification struct {
 	StatusRecord   string
 }
 
-type NotificationFindByUserId struct {
-	UserId       int
-	Page         int
-	ItemsPerPage int
-	Type         string
-	StatusRecord string
-	IsRead       string
+type NotificationFindById struct {
+	NotificationId int
+	UserId         int
+	Title          string
+	Type           string
+	Message        string
+	IsRead         string
+	IconImageUrl   string
+	ImageUrl       string
+	SentStatus     string
+	RequestRaw     string
+	ResponseRaw    string
+	DateIn         time.Time
+	UserIn         string
+	DateUp         time.Time
+	UserUp         string
+	StatusRecord   string
 }

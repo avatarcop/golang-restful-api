@@ -13,7 +13,7 @@ type NotificationResponse struct {
 	ImageUrl       string    `json:"image_url"`
 	SentStatus     string    `json:"sent_status"`
 	RequestRaw     string    `json:"request_raw"`
-	ResponsesRaw   string    `json:"responses_raw"`
+	ResponseRaw    string    `json:"response_raw"`
 	DateIn         time.Time `json:"date_in"`
 	UserIn         string    `json:"user_in"`
 	DateUp         time.Time `json:"date_up"`

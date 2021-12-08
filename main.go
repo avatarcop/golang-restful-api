@@ -28,5 +28,5 @@ func main() {
 	}
 	log.Print("Success running server at localhost:3000")
 	err := server.ListenAndServe()
-	helper.PanicIfError(err)
+	helper.PanicIfError(err, "error main when listen server")
 }
